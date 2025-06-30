@@ -49,26 +49,39 @@ wire            [4:0]       rt_i                ;
 wire            [15:0]      imm                 ;
 wire            [25:0]      addr_j              ;
 // Control signals
-wire                        MemtoReg            ;
+wire            [2:0]       MemtoReg            ;
 wire                        MemWrite            ;
-wire                        Branch              ;
-wire                        ALUSrc              ;
-wire                        RegDst              ;
+wire            [2:0]       Branch              ;
+wire            [1:0]       ALUSrc              ;
+wire            [1:0]       RegDst              ;
 wire                        RegWrite            ;
 wire                        Jump                ;
-wire            [2:0]       ALU_control         ;
+wire            [4:0]       ALU_control         ;
+wire            [1:0]       hi_src              ;
+wire            [1:0]       lo_src              ;
+wire                        JumpReg             ;
+wire            [1:0]       mem_data_size       ;
+wire                        sign                ;
+wire                        hi_w                ;
+wire                        lo_w                ;
+wire                        unsigned_instr      ;
+
 wire            [31:0]      mux_to_a3           ;
 wire            [31:0]      mux_to_wd3          ;
 wire            [31:0]      rd1_rf              ;
 wire            [31:0]      rd2_rf              ;
 wire            [31:0]      sign_imm            ;
-wire signed     [31:0]      srcA                ;
-wire signed     [31:0]      srcB                ;
+wire            [31:0]      srcA                ;
+wire            [31:0]      srcB                ;
 wire                        zero                ;
-wire signed     [31:0]      ALU_result          ;
-wire signed     [31:0]      ALU_to_addr         ;
+wire                        N_flag              ;
+wire                        V_flag              ;
+wire                        C_flag              ;
+wire            [31:0]      ALU_result          ;
+wire            [31:0]      ALU_to_addr         ;
 wire            [31:0]      read_data_DM        ;
 wire            [31:0]      aluDM_result        ;
+
 // PC control logic
 wire            [31:0]      pc_plus4            ;
 wire            [31:0]      imm_out_shifted     ;
@@ -78,14 +91,24 @@ wire            [31:0]      PCjump              ;
 wire                        PCSrc               ;
 wire            [31:0]      pc_mux1out          ;
 wire            [31:0]      pc_mux2out          ;
+wire            [31:0]      pc_mux3out          ;
+wire            [31:0]      imm_shifted16       ;
 
+// MUL and DIV 
+wire            [63:0]      product             ;
+wire            [31:0]      quotient            ;
+wire            [31:0]      remainder           ;
+wire            [31:0]      mux_2_hi            ;
+wire            [31:0]      mux_2_lo            ;
+wire            [31:0]      HI_wire             ;
+wire            [31:0]      LO_wire             ;
 
 // Combinational Assignments 
 assign srcA         = rd1_rf;                         // ALU source A is register rs
 assign ALU_to_addr  = ALU_result;                     // ALU result used as memory address
 assign mux_to_wd3   = aluDM_result;                   // Data to be written back to register
 assign PCjump       = {pc_plus4[31:28], addr_j_shifted}; // Jump target address
-assign PC_next      = pc_mux2out;                     // Final next PC value
+assign PC_next      = pc_mux3out;                     // Final next PC value
 
 // Modules
 Progame_Counter PC (
@@ -95,10 +118,12 @@ Progame_Counter PC (
 .PC(PC_current)
 );
 
-ram_memory #(.addr_width(7),.data_width(8)) Instruction_Memory (
+ram_memory #(.addr_width(11),.data_width(8)) Instruction_Memory (
 .clk(clk),
-//.reset_n(reset_n),
+.reset_n(reset_n),
 .addr(PC_current),
+.unsigned_instr(1'b0),
+.mem_data_size(2'b10),
 .read_data(instr)
 );
 
@@ -118,6 +143,8 @@ Instruction_Decoder instr_decoder (
 Control_Unit Controller (
 .OPcode(OPcode),
 .Funct(Funct),
+.rt(rt_i),
+
 .MemtoReg(MemtoReg),
 .MemWrite(MemWrite),
 .Branch(Branch),
@@ -125,13 +152,31 @@ Control_Unit Controller (
 .RegDst(RegDst),
 .RegWrite(RegWrite),
 .Jump(Jump),
-.ALU_control(ALU_control)
+.ALU_control(ALU_control),
+.hi_src(hi_src),
+.lo_src(lo_src),
+.JumpReg(JumpReg),
+.mem_data_size(mem_data_size),
+.sign(sign),
+.hi_w(hi_w),
+.lo_w(lo_w),
+.unsigned_instr(unsigned_instr)
+);
+
+Branch_Control branch_cController(
+.branch(Branch),
+.zero_flag(zero),
+.N_flag(N_flag),
+.V_flag(V_flag),
+.C_flag(C_flag),
+.PCSrc(PCSrc)
 );
 
 // Register Destination MUX (for write address)
-mux_2x1 #(.Bits(5)) instr_a3rf_RegDst (
+mux_4x1 #(.Bits(5)) instr_a3rf_RegDst (
 .a(rt_i),
 .b(rd_r),
+.c(5'b11111),
 .sel(RegDst),
 .mux_out(mux_to_a3)
 );
@@ -147,15 +192,23 @@ Register_File register_file (
 .read_data2(rd2_rf)
 );
 
-Sign_Extension sign_extend (
+Sign_Extension sign_extend_zero (
 .imm(imm),
+.sign(sign),
 .sign_imm(sign_imm)
 );
 
+shift_left_by_16 SLL_by_16 (
+.imm(imm),
+.out_shifted(imm_shifted16)
+);
+
 // ALU Source B MUX
-mux_2x1 #(.Bits(32)) rf_rd2alu_ALUSrc (
+mux_4x1 #(.Bits(32)) rf_rd2alu_ALUSrc (
 .a(rd2_rf),
 .b(sign_imm),
+.c(31'd0),
+.d(imm_shifted16),
 .sel(ALUSrc),
 .mux_out(srcB)
 );
@@ -163,24 +216,82 @@ mux_2x1 #(.Bits(32)) rf_rd2alu_ALUSrc (
 Arithmetic_Logic_Unit ALU (
 .Src_A(srcA),
 .Src_B(srcB),
+.shamt(shamt),
 .ALU_control(ALU_control),
 .zero(zero),
+.N(N_flag),
+.V(V_flag),
+.C(C_flag),
 .result(ALU_result)
 );
 
-ram_memory #(.addr_width(7),.data_width(8)) Data_Memory (
+Multiplication #(.Bits(32))  MUL (
+.multiplier(rd1_rf),
+.multiplicand(rd2_rf),
+.unsigned_instr(unsigned_instr),
+.product(product)
+);
+
+Division DIV (
+.dividend(rd1_rf),
+.divisor(rd2_rf),
+.unsigned_instr(unsigned_instr),
+.quotient(quotient),
+.remainder(remainder)
+);
+
+// write to hi_reg
+mux_4x1 #(.Bits(32)) to_hi (
+.a(rd1_rf),
+.b(product[63:32]),
+.c(remainder),
+.sel(hi_src),
+.mux_out(mux_2_hi)
+);
+
+// write to lo_reg
+mux_4x1 #(.Bits(32)) to_lo (
+.a(rd1_rf),
+.b(product[31:0]),
+.c(quotient),
+.sel(lo_src),
+.mux_out(mux_2_lo)
+);
+
+HI HI_reg (
+.clk(clk),
+.reset_n(reset_n),
+.hi_write(hi_w),
+.in(mux_2_hi),
+.out(HI_wire)
+);
+
+LO LO_reg (
+.clk(clk),
+.reset_n(reset_n),
+.lo_write (lo_w),
+.in(mux_2_lo),
+.out(LO_wire)
+);
+
+ram_memory #(.addr_width(10),.data_width(8)) Data_Memory (
 .clk(clk),
 .reset_n(reset_n),
 .we(MemWrite),
 .addr(ALU_to_addr),
+.mem_data_size(mem_data_size),
+.unsigned_instr(unsigned_instr),
 .write_data(rd2_rf),
 .read_data(read_data_DM)
 );
 
-// Write-back MUX: ALU result or Data Memory output 
-mux_2x1 #(.Bits(32)) alu_ADA_MemtoReg (
+// Write-back MUX
+mux_8x1 #(.Bits(32)) alu_ADA_MemtoReg (
 .a(ALU_result),
 .b(read_data_DM),
+.c(HI_wire),
+.d(LO_wire),
+.e(pc_plus4),
 .sel(MemtoReg),
 .mux_out(aluDM_result)
 );
@@ -209,12 +320,13 @@ shift_left_by_2 #(.Bits(28)) SL2_J(
 .out_shifted(addr_j_shifted)
 );
 
-and_2inputs_module #(.Bits(1)) branch_and
+/*and_2inputs_module #(.Bits(1)) branch_and
 (
 .Branch(Branch),
 .Zero(zero),
 .PCSrc(PCSrc)    
 );
+*/
 
 // MUX to select between PC+4 and PC+Branch (for branches)
 mux_2x1 #(.Bits(32)) branch_mux
@@ -232,6 +344,13 @@ mux_2x1 #(.Bits(32)) jump_mux
 .b(PCjump),
 .sel(Jump),
 .mux_out(pc_mux2out)
+);
+
+mux_2x1 #(.Bits(32)) Jump_Reg_mux (
+.a(pc_mux2out),
+.b(rd1_rf),
+.sel(JumpReg),
+.mux_out(pc_mux3out)
 );
 
 endmodule

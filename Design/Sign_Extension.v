@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Sign_Extension(imm,sign_imm,sign);
+module Sign_Extension(imm,sign,sign_imm);
 input  [15:0]           imm             ;
 input                   sign            ;
 output [31:0]           sign_imm        ;       
