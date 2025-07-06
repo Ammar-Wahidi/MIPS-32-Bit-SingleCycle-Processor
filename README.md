@@ -28,6 +28,9 @@ This project implements a 32‑bit single‑cycle MIPS processor in SystemVerilo
 
 ### 🔍 Datapath Diagram
 
-![MIPS Architecture](Pictures/architecture.png)
+![MIPS Architecture](My%20Architecture/Single-Cycle%20MIPS%20Architecture.drawio.png)
 
+### 🔍 Branch Diagram
+
+![Branch Diagram](Pictures/Branch_Control.PNG)
 ---
