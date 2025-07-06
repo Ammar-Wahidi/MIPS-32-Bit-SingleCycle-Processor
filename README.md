@@ -52,9 +52,50 @@ All source files are located under the `RTL/` directory.
 | `shift_left_by_16.v`      | Shifts a value left by 16 bits (possibly for `lui` instruction)    |
 
 ---
+## 🎛️ Control Signals
+
+Detailed information about the MIPS instruction formats, control signals, and ALU operation codes is provided in this Excel sheet I made :
+
+👉 [`MIPS ISA & Control Unit.xlsx`](https://github.com/Ammar-Wahidi/MIPS-32-Bit-SingleCycle-Processor/blob/main/My%20Architecture/ISA%20and%20Control%20Unit/MIPS%20ISA%20%26%20Control%20Unit.xlsx)
+
+This spreadsheet includes:
+
+- **MIPS ISA reference**: Opcodes, funct fields, and instruction classifications (R, I, J types)  
+- **Main Control Signals**: Signal values (RegDst, ALUSrc, MemtoReg, etc.) for each instruction  
+- **ALU Control Signals**: Function-to-operation mappings  
+- **Truth Tables**: Control logic for main decoder and ALU decoder  
+
+This file was used to guide the development of key modules like `Control_Unit.v`, `Main_Decoder.v`, `ALU_Decoder.v`
+
+---
 
 ## 📊 Benchmarks, Testbenches, Simulation & Results
 
+in the **factorial benchmark**, the simulation concludes when the value `0xD08E` is written into register `$s0`.  
+This specific moment is **highlighted with a red circle** in the waveform image.
+
+ ### Benchmark 1
+
+ 👉 [`Test 1.asm`](https://github.com/Ammar-Wahidi/MIPS-32-Bit-SingleCycle-Processor/blob/main/Benchmarks/Test1.asm)
+ 
+![Test 1](Pictures/Test1_Wave.PNG)
+
+ ### Benchmark 2
+ 
+ 👉 [`Test 3.asm`](https://github.com/Ammar-Wahidi/MIPS-32-Bit-SingleCycle-Processor/blob/main/Benchmarks/Test3_v3.asm)
+ 
+![Test 3](Pictures/Test3_Wave.PNG)
+
+ ### Benchmark 3
+ 
+ 👉 [`Test 6 MUL / DIV.asm`](https://github.com/Ammar-Wahidi/MIPS-32-Bit-SingleCycle-Processor/blob/main/Benchmarks/Test6_mul_div_v2.asm)
+ 
+![Test 6](Pictures/Test6_Wave.PNG)
+
+Others tests on `Benchmarks` Folder and Screenshots on `Pictures` Folder .
+
+
+ 
 
 ---
 
