@@ -94,8 +94,11 @@ This specific moment is **highlighted with a red circle** in the waveform image.
 
 Others tests on `Benchmarks` Folder and Screenshots on `Pictures` Folder .
 
-
- 
-
 ---
+
+## 📚 References
+
+1. *Digital Design and Computer Architecture* by David Harris and Sarah Harris.  
+2. AbdulKareem's Computer Architecture Lecture Series.
+
 
