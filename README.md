@@ -25,6 +25,9 @@ This project implements a 32‑bit single‑cycle MIPS processor in SystemVerilo
 - **Single‑Cycle Datapath**: Fetch, decode, execute, memory access, and write‑back in one cycle.
 - **Harvard Architecture**: Separate instruction and data memories.
 - **Control Unit**: Main, ALU decoder and Branch modules.
-- 
+
+### 🔍 Datapath Diagram
+
+![MIPS Architecture](Pictures/architecture.png)
 
 ---
