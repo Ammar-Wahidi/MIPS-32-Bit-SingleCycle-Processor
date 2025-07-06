@@ -151,7 +151,7 @@ begin
     OP_SLTIU: {RegWrite_reg,RegDst_reg,ALUSrc_reg,Branch_reg,MemWrite_reg,MemtoReg_reg,ALUOp_reg,Jump_reg,hi_src_reg,lo_src_reg,mem_data_size_reg,JumpReg_reg,sign_reg,hi_w_reg,lo_w_reg,unsigned_instr_reg} = 28'b1_00_01_000_0_000_1010_0_00_00_10_0_0_0_0_1 ;
     OP_LBU:   {RegWrite_reg,RegDst_reg,ALUSrc_reg,Branch_reg,MemWrite_reg,MemtoReg_reg,ALUOp_reg,Jump_reg,hi_src_reg,lo_src_reg,mem_data_size_reg,JumpReg_reg,sign_reg,hi_w_reg,lo_w_reg,unsigned_instr_reg} = 28'b1_00_01_000_0_001_0000_0_00_00_00_0_1_0_0_1 ;
     OP_LHU:   {RegWrite_reg,RegDst_reg,ALUSrc_reg,Branch_reg,MemWrite_reg,MemtoReg_reg,ALUOp_reg,Jump_reg,hi_src_reg,lo_src_reg,mem_data_size_reg,JumpReg_reg,sign_reg,hi_w_reg,lo_w_reg,unsigned_instr_reg} = 28'b1_00_01_000_0_001_0000_0_00_00_01_0_1_0_0_1 ;
-    OP_ADDIU: {RegWrite_reg,RegDst_reg,ALUSrc_reg,Branch_reg,MemWrite_reg,MemtoReg_reg,ALUOp_reg,Jump_reg,hi_src_reg,lo_src_reg,mem_data_size_reg,JumpReg_reg,sign_reg,hi_w_reg,lo_w_reg,unsigned_instr_reg} = 28'b1_00_01_000_0_000_1100_0_00_00_10_0_0_0_0_1 ;
+    OP_ADDIU: {RegWrite_reg,RegDst_reg,ALUSrc_reg,Branch_reg,MemWrite_reg,MemtoReg_reg,ALUOp_reg,Jump_reg,hi_src_reg,lo_src_reg,mem_data_size_reg,JumpReg_reg,sign_reg,hi_w_reg,lo_w_reg,unsigned_instr_reg} = 28'b1_00_01_000_0_000_1100_0_00_00_10_0_1_0_0_1 ;
     default:  {RegWrite_reg,RegDst_reg,ALUSrc_reg,Branch_reg,MemWrite_reg,MemtoReg_reg,ALUOp_reg,Jump_reg,hi_src_reg,lo_src_reg,mem_data_size_reg,JumpReg_reg,sign_reg,hi_w_reg,lo_w_reg,unsigned_instr_reg} = 28'b0_00_00_000_0_000_0000_0_00_00_00_0_0_0_0_0 ;
     endcase
 end
