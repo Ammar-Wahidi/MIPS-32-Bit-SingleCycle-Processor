@@ -27,7 +27,7 @@
 // Revision 0.01 - File Created
 //////////////////////////////////////////////////////////////////////////////////
 
-
+(* DONT_TOUCH = "TRUE" *)
 module MIPS_32Bit_Wrapper(clk,reset_n);
 
 //Inputs
@@ -35,6 +35,7 @@ input clk;
 input reset_n;
 
 //Wires 
+
 wire            [31:0]      PC_current          ;
 wire            [31:0]      PC_next             ;
 wire            [31:0]      instr               ;
@@ -66,7 +67,7 @@ wire                        hi_w                ;
 wire                        lo_w                ;
 wire                        unsigned_instr      ;
 
-wire            [31:0]      mux_to_a3           ;
+wire            [4:0]       mux_to_a3           ;
 wire            [31:0]      mux_to_wd3          ;
 wire            [31:0]      rd1_rf              ;
 wire            [31:0]      rd2_rf              ;
@@ -118,7 +119,7 @@ Progame_Counter PC (
 .PC(PC_current)
 );
 
-ram_memory #(.addr_width(11),.data_width(8)) Instruction_Memory (
+ram_memory #(.addr_width(7),.data_width(8)) Instruction_Memory (
 .clk(clk),
 .reset_n(reset_n),
 .addr(PC_current),
@@ -274,7 +275,7 @@ LO LO_reg (
 .out(LO_wire)
 );
 
-ram_memory #(.addr_width(10),.data_width(8)) Data_Memory (
+ram_memory #(.addr_width(5),.data_width(8)) Data_Memory (
 .clk(clk),
 .reset_n(reset_n),
 .we(MemWrite),
@@ -319,14 +320,6 @@ shift_left_by_2 #(.Bits(28)) SL2_J(
 .in({2'b00,addr_j}),
 .out_shifted(addr_j_shifted)
 );
-
-/*and_2inputs_module #(.Bits(1)) branch_and
-(
-.Branch(Branch),
-.Zero(zero),
-.PCSrc(PCSrc)    
-);
-*/
 
 // MUX to select between PC+4 and PC+Branch (for branches)
 mux_2x1 #(.Bits(32)) branch_mux

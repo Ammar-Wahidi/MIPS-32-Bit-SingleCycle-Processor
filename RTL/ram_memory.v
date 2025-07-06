@@ -81,6 +81,7 @@ end
 
 //////////////////////////////////////////////////////////////////////////////////
 // NOT SYNTHESIZABLE: Simulation-only initialization
+/*
 always @(negedge reset_n) begin
     if (~reset_n)
     begin    
@@ -89,10 +90,11 @@ always @(negedge reset_n) begin
         end
     end
 end
+*/
 
 initial 
 begin
-#20 $readmemh("Test4_v2.mem",memory);
+$readmemh("Test4_v2.mem",memory);
 end
 
 //////////////////////////////////////////////////////////////////////////////////
