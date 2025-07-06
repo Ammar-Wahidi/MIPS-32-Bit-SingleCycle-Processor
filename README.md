@@ -49,7 +49,7 @@ All source files are located under the `RTL/` directory.
 | `mux_8x1.v`               | 8-to-1 multiplexer                                                 |
 | `ram_memory.v`            | Main data memory module (read/write RAM)                           |
 | `shift_left_by_2.v`       | Shifts a 32-bit value left by 2 bits (used in branch address calc) |
-| `shift_left_by_16.v`      | Shifts a value left by 16 bits (possibly for `lui` instruction)    |
+| `shift_left_by_16.v`      | Shifts a value left by 16 bits  for `lui` instruction)    |
 
 ---
 ## 🎛️ Control Signals
